@@ -1,0 +1,30 @@
+# fly.toml app configuration file generated for mis-crimson-forest-2287 on 2025-02-03T20:10:38+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'mis-crimson-forest-2287'
+primary_region = 'jnb'
+
+[build]
+
+[deploy]
+  release_command = 'npx prisma migrate deploy'
+  seed_command = 'node prisma/seed.js'
+
+[env]
+  ENCRYPTION_KEY = '2GulbbquYO699p/kbaWQTBH5fmSXK4iGfBOY9j3rTeM='
+  JWT_SECRET = 'your-very-secure-jwt-secret-key'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
