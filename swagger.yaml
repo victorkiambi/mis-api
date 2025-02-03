@@ -54,6 +54,79 @@ components:
           type: string
           enum: [Spouse, Son, Daughter, Parent, Other]
 
+    County:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Nairobi
+        code:
+          type: string
+          example: NAI
+        subcounties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subcounty'
+
+    Subcounty:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Westlands
+        code:
+          type: string
+          example: WST
+        countyId:
+          type: integer
+          example: 1
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Parklands
+        code:
+          type: string
+          example: PKL
+        subcountyId:
+          type: integer
+          example: 1
+        sublocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sublocation'
+
+    Sublocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Parklands North
+        code:
+          type: string
+          example: PKL-N
+        locationId:
+          type: integer
+          example: 1
+
 paths:
   /auth/register:
     post:
@@ -171,4 +244,139 @@ paths:
               $ref: '#/components/schemas/Member'
       responses:
         201:
-          description: Member added successfully 
+          description: Member added successfully
+
+  /api/v1/locations/counties:
+    get:
+      tags:
+        - Locations
+      summary: Get all counties
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of counties with their subcounties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/County'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/locations/counties/{countyId}/subcounties:
+    get:
+      tags:
+        - Locations
+      summary: Get subcounties by county
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: countyId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the county
+      responses:
+        '200':
+          description: List of subcounties with their locations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subcounty'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/locations/subcounties/{subcountyId}/locations:
+    get:
+      tags:
+        - Locations
+      summary: Get locations by subcounty
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: subcountyId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the subcounty
+      responses:
+        '200':
+          description: List of locations with their sublocations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/locations/locations/{locationId}/sublocations:
+    get:
+      tags:
+        - Locations
+      summary: Get sublocations by location
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the location
+      responses:
+        '200':
+          description: List of sublocations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Sublocation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        '401':
+          $ref: '#/components/responses/Unauthorized' 

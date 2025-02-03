@@ -7,6 +7,7 @@ const programRoutes = require('./routes/programRoutes');
 const householdRoutes = require('./routes/householdRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const authRoutes = require('./routes/authRoutes');
+const locationRoutes = require('./routes/locationRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/v1/programs', programRoutes);
 app.use('/api/v1/households', householdRoutes);
 app.use('/api/v1/households/:householdId/members', memberRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/locations', locationRoutes);
 
 // Swagger documentation
 const swaggerDocument = YAML.load('./swagger.yaml');
