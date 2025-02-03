@@ -23,10 +23,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/programs', programRoutes);
 app.use('/api/v1/households', householdRoutes);
 app.use('/api/v1/households/:householdId/members', memberRoutes);
-app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/locations', locationRoutes);
 
 // Swagger documentation

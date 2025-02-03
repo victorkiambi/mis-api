@@ -1,21 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const locationController = require('../controllers/locationController');
-const { authenticateToken } = require('../middleware/auth');
-
-// Apply authentication middleware to all routes
-router.use(authenticateToken);
+const { verifyToken } = require('../middleware/auth');
 
 // Get all counties
-router.get('/counties', locationController.getAllCounties);
+router.get('/counties',verifyToken, locationController.getAllCounties);
 
 // Get subcounties by county
-router.get('/counties/:countyId/subcounties', locationController.getSubcounties);
+router.get('/counties/:countyId/subcounties', verifyToken, locationController.getSubcounties);
 
 // Get locations by subcounty
-router.get('/subcounties/:subcountyId/locations', locationController.getLocations);
+router.get('/subcounties/:subcountyId/locations',verifyToken, locationController.getLocations);
 
 // Get sublocations by location
-router.get('/locations/:locationId/sublocations', locationController.getSublocations);
+router.get('/locations/:locationId/sublocations', verifyToken, locationController.getSublocations);
 
 module.exports = router; 
