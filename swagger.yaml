@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: Social Protection Program MIS API
+  version: 1.0.0
+  description: API for managing social protection program beneficiaries
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Program:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    Household:
+      type: object
+      properties:
+        program_id:
+          type: integer
+        sublocation_id:
+          type: integer
+        head_first_name:
+          type: string
+        head_last_name:
+          type: string
+        head_id_number:
+          type: string
+        phone:
+          type: string
+
+    Member:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        relationship:
+          type: string
+          enum: [Spouse, Son, Daughter, Parent, Other]
+
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+      responses:
+        201:
+          description: User registered successfully
+
+  /auth/login:
+    post:
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+
+  /programs:
+    get:
+      summary: Get all programs
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of programs
+    post:
+      summary: Create new program
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Program'
+      responses:
+        201:
+          description: Program created successfully
+
+  /households:
+    get:
+      summary: Get all households
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: List of households
+    post:
+      summary: Create new household
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Household'
+      responses:
+        201:
+          description: Household created successfully
+
+  /households/{householdId}/members:
+    get:
+      summary: Get household members
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: householdId
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of household members
+    post:
+      summary: Add household member
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: householdId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+      responses:
+        201:
+          description: Member added successfully 
