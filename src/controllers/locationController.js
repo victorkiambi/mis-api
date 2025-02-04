@@ -11,7 +11,15 @@ const locationController = {
     try {
       const counties = await prisma.geoCounty.findMany({
         include: {
-          subcounties: true
+          subcounties: {
+            include: {
+              locations: {
+                include: {
+                  sublocations: true
+                }
+              }
+            }
+        }
         }
       });
 
@@ -22,7 +30,7 @@ const locationController = {
     } catch (error) {
       res.status(500).json({
         status: 'error',
-        message: 'Failed to fetch counties'
+        message: `Failed to fetch counties: ${error.message}`
       });
     }
   },

@@ -77,7 +77,7 @@ const programController = {
       });
     }
   },
-  getProgramMembers: async (req, res) => {
+  getProgramHouseholds: async (req, res) => {
     try {
       const { programId } = req.params;
 
@@ -90,16 +90,15 @@ const programController = {
         });
       }
 
-      const members = await prisma.members.findMany({
+      const members = await prisma.household.findMany({
         where: {
-          id: id
+          programId: id
         },
         select: {
           id: true,
-          firstName: true,
-          lastName: true,
-          dateOfBirth: true,
-          relationship: true
+          headFirstName: true,
+          headLastName: true,
+          headIdNumber: true,
         }
       });
 
