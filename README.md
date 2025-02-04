@@ -79,18 +79,20 @@ erDiagram
 - **Database**: PostgreSQL
 - **ORM**: Prisma
 - **Backend**: Node.js with Express
-- **Security**: bcrypt for encryption
+- **Security**: bcrypt for password hashing, AES-256-CBC for data encryption
 - **Documentation**: Swagger/OpenAPI
 - **Testing**: Jest & Supertest
 
 ## Features
 
 - CRUD operations for programs and beneficiaries
-- Encrypted storage of sensitive data
-- Geographical hierarchy management
+- Encrypted storage of sensitive data (phone numbers)
+- Geographical hierarchy management (County -> Subcounty -> Location -> Sublocation)
+- JWT-based authentication
+- Role-based access control
 - RESTful API endpoints
 - Comprehensive API documentation
-- Automated tests
+- Automated tests with high coverage
 
 ## Getting Started
 
@@ -122,7 +124,10 @@ Edit .env file with your configuration:
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/mis_db"
 JWT_SECRET="your-secret-key"
-ENCRYPTION_KEY="your-encryption-key"
+ENCRYPTION_KEY="your-base64-encoded-32-byte-key"
+PORT=3000
+FRONTEND_URL="http://localhost:5173"
+NODE_ENV="development"
 ```
 
 4. Initialize Prisma and run migrations
@@ -150,20 +155,29 @@ Once the server is running, you can access the Swagger documentation at:
 
 ## API Endpoints
 
+### Authentication
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login user
+
 ### Programs
 - `GET /api/v1/programs` - List all programs
 - `POST /api/v1/programs` - Create a new program
-- `GET /api/v1/programs/:id` - Get program details
+- `GET /api/v1/programs/:id/households` - Get households in a program
 
 ### Households
 - `GET /api/v1/households` - List all households
 - `POST /api/v1/households` - Create a new household
-- `GET /api/v1/households/:id` - Get household details
-- `PUT /api/v1/households/:id` - Update household details
 
 ### Household Members
 - `GET /api/v1/households/:id/members` - List household members
 - `POST /api/v1/households/:id/members` - Add new household member
+- `GET /api/v1/members/all` - List all members
+
+### Locations
+- `GET /api/v1/locations/counties` - List all counties with full hierarchy
+- `GET /api/v1/locations/counties/:id/subcounties` - Get subcounties in a county
+- `GET /api/v1/locations/subcounties/:id/locations` - Get locations in a subcounty
+- `GET /api/v1/locations/locations/:id/sublocations` - Get sublocations in a location
 
 ## Testing
 

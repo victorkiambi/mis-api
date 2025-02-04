@@ -2,12 +2,12 @@ openapi: 3.0.0
 info:
   title: Social Protection Program MIS API
   version: 1.0.0
-  description: API for managing social protection program beneficiaries
+  description: API documentation for the Social Protection Program Management Information System
 
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: http://localhost:3000
     description: Development server
-  - url: https://mis.fly.dev/api/v1
+  - url: https://mis.fly.dev
     description: Production server
 
 components:
@@ -98,16 +98,10 @@ components:
       properties:
         id:
           type: integer
-          example: 1
         name:
           type: string
-          example: Parklands
         code:
           type: string
-          example: PKL
-        subcountyId:
-          type: integer
-          example: 1
         sublocations:
           type: array
           items:
@@ -118,16 +112,10 @@ components:
       properties:
         id:
           type: integer
-          example: 1
         name:
           type: string
-          example: Parklands North
         code:
           type: string
-          example: PKL-N
-        locationId:
-          type: integer
-          example: 1
 
 paths:
   /api/v1/auth/register:
@@ -260,14 +248,12 @@ paths:
 
   /api/v1/locations/counties:
     get:
-      tags:
-        - Locations
-      summary: Get all counties
+      summary: Get all counties with their hierarchical data
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: List of counties with their subcounties
+          description: List of counties with their subcounties, locations, and sublocations
           content:
             application/json:
               schema:
@@ -279,17 +265,33 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/County'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        code:
+                          type: string
+                        subcounties:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              code:
+                                type: string
+                              locations:
+                                type: array
+                                items:
+                                  $ref: '#/components/schemas/Location'
 
   /api/v1/locations/counties/{countyId}/subcounties:
     get:
-      tags:
-        - Locations
-      summary: Get subcounties by county
+      summary: Get subcounties for a specific county
       security:
         - BearerAuth: []
       parameters:
@@ -298,7 +300,6 @@ paths:
           required: true
           schema:
             type: integer
-          description: ID of the county
       responses:
         '200':
           description: List of subcounties with their locations
@@ -313,19 +314,22 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Subcounty'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        code:
+                          type: string
+                        locations:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Location'
 
   /api/v1/locations/subcounties/{subcountyId}/locations:
     get:
-      tags:
-        - Locations
-      summary: Get locations by subcounty
+      summary: Get locations for a specific subcounty
       security:
         - BearerAuth: []
       parameters:
@@ -334,7 +338,6 @@ paths:
           required: true
           schema:
             type: integer
-          description: ID of the subcounty
       responses:
         '200':
           description: List of locations with their sublocations
@@ -350,18 +353,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Location'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '500':
-          $ref: '#/components/responses/ServerError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
 
   /api/v1/locations/locations/{locationId}/sublocations:
     get:
-      tags:
-        - Locations
-      summary: Get sublocations by location
+      summary: Get sublocations for a specific location
       security:
         - BearerAuth: []
       parameters:
@@ -370,7 +365,6 @@ paths:
           required: true
           schema:
             type: integer
-          description: ID of the location
       responses:
         '200':
           description: List of sublocations

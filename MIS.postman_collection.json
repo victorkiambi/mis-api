@@ -217,9 +217,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/locations/counties",
+              "raw": "{{baseUrl}}/locations/counties",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "locations", "counties"]
+              "path": ["locations", "counties"]
             }
           }
         },
@@ -235,9 +235,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/locations/counties/1/subcounties",
+              "raw": "{{baseUrl}}/locations/counties/1/subcounties",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "locations", "counties", "1", "subcounties"]
+              "path": ["locations", "counties", "1", "subcounties"]
             }
           }
         },
@@ -253,9 +253,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/locations/subcounties/1/locations",
+              "raw": "{{baseUrl}}/locations/subcounties/1/locations",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "locations", "subcounties", "1", "locations"]
+              "path": ["locations", "subcounties", "1", "locations"]
             }
           }
         },
@@ -271,9 +271,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/locations/locations/1/sublocations",
+              "raw": "{{baseUrl}}/locations/locations/1/sublocations",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "locations", "locations", "1", "sublocations"]
+              "path": ["locations", "locations", "1", "sublocations"]
             }
           }
         }
