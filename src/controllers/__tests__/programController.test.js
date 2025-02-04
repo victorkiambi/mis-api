@@ -20,7 +20,9 @@ describe('Program Controller', () => {
     mockPrisma = {
       program: {
         findMany: jest.fn(),
-        create: jest.fn()
+        create: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn()
       }
     };
 
@@ -158,6 +160,80 @@ describe('Program Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'error',
         message: 'Failed to create program'
+      });
+    });
+  });
+
+  describe('updateProgram', () => {
+    const validUpdate = {
+      name: 'Updated Program',
+      description: 'Updated description'
+    };
+
+    it('should update a program successfully', async () => {
+      mockReq.params = { programId: '1' };
+      mockReq.body = validUpdate;
+
+      mockPrisma.program.findUnique.mockResolvedValue({ id: 1, ...validUpdate });
+      mockPrisma.program.update.mockResolvedValue({
+        id: 1,
+        ...validUpdate
+      });
+
+      await programController.updateProgram(mockReq, mockRes);
+
+      expect(mockPrisma.program.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: validUpdate
+      });
+
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: expect.objectContaining(validUpdate)
+      });
+    });
+
+    it('should handle non-existent program', async () => {
+      mockReq.params = { programId: '999' };
+      mockReq.body = validUpdate;
+
+      mockPrisma.program.findUnique.mockResolvedValue(null);
+
+      await programController.updateProgram(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'Program not found'
+      });
+    });
+
+    it('should validate required fields', async () => {
+      mockReq.params = { programId: '1' };
+      mockReq.body = {
+        name: '',
+        description: 'Valid description'
+      };
+
+      await programController.updateProgram(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'Program name is required'
+      });
+    });
+
+    it('should handle invalid program ID', async () => {
+      mockReq.params = { programId: 'invalid' };
+      mockReq.body = validUpdate;
+
+      await programController.updateProgram(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'Invalid program ID'
       });
     });
   });

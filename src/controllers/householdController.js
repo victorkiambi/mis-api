@@ -129,6 +129,109 @@ const householdController = {
         message: 'Failed to create household'
       });
     }
+  },
+
+  // Update household
+  updateHousehold: async (req, res) => {
+    try {
+      const { householdId } = req.params;
+      const {
+        program_id,
+        sublocation_id,
+        head_first_name,
+        head_last_name,
+        head_id_number,
+        phone
+      } = req.body;
+
+      // Validate household ID
+      const id = parseInt(householdId);
+      if (isNaN(id)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid household ID'
+        });
+      }
+
+      // Validate required fields
+      if (!program_id || !sublocation_id || !head_first_name?.trim() || 
+          !head_last_name?.trim() || !head_id_number?.trim() || !phone) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'All fields are required'
+        });
+      }
+
+      // Validate phone number format (Kenyan format)
+      const phoneRegex = /^254[0-9]{9}$/;
+      if (!phoneRegex.test(phone)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid phone number format. Use format: 254XXXXXXXXX'
+        });
+      }
+
+      // Validate ID number
+      if (head_id_number.length < 5 || head_id_number.length > 20) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'ID number must be between 5 and 20 characters'
+        });
+      }
+
+      // Check if household exists
+      const existingHousehold = await prisma.household.findUnique({
+        where: { id }
+      });
+
+      if (!existingHousehold) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Household not found'
+        });
+      }
+
+      // Check if ID number is already used by another household
+      if (head_id_number !== existingHousehold.headIdNumber) {
+        const duplicateId = await prisma.household.findUnique({
+          where: { headIdNumber: head_id_number }
+        });
+
+        if (duplicateId) {
+          return res.status(400).json({
+            status: 'error',
+            message: 'ID number is already registered to another household'
+          });
+        }
+      }
+
+      // Update household
+      const updatedHousehold = await prisma.household.update({
+        where: { id },
+        data: {
+          programId: parseInt(program_id),
+          sublocationId: parseInt(sublocation_id),
+          headFirstName: head_first_name.trim(),
+          headLastName: head_last_name.trim(),
+          headIdNumber: head_id_number.trim(),
+          encryptedPhone: encrypt(phone)
+        }
+      });
+
+      res.json({
+        status: 'success',
+        data: {
+          ...updatedHousehold,
+          phone: decrypt(updatedHousehold.encryptedPhone)
+        }
+      });
+    } catch (error) {
+      console.error('Error updating household:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to update household'
+      });
+    }
   }
 };
 

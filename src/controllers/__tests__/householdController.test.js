@@ -21,7 +21,9 @@ describe('Household Controller', () => {
     mockPrisma = {
       household: {
         findMany: jest.fn(),
-        create: jest.fn()
+        create: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn()
       }
     };
 
@@ -165,6 +167,101 @@ describe('Household Controller', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'error',
         message: 'Failed to create household'
+      });
+    });
+  });
+
+  describe('updateHousehold', () => {
+    const validUpdate = {
+      program_id: 1,
+      sublocation_id: 1,
+      head_first_name: 'John',
+      head_last_name: 'Doe',
+      head_id_number: '12345678',
+      phone: '254712345678'
+    };
+
+    it('should update a household successfully', async () => {
+      mockReq.params = { householdId: '1' };
+      mockReq.body = validUpdate;
+
+      const existingHousehold = {
+        id: 1,
+        headIdNumber: '12345678',
+        encryptedPhone: encrypt('254712345678')
+      };
+
+      mockPrisma.household.findUnique
+        .mockResolvedValueOnce(existingHousehold) // First call for existence check
+        .mockResolvedValueOnce(null); // Second call for ID number check
+
+      const updatedHousehold = {
+        ...existingHousehold,
+        ...validUpdate,
+        encryptedPhone: encrypt(validUpdate.phone)
+      };
+
+      mockPrisma.household.update.mockResolvedValue(updatedHousehold);
+
+      await householdController.updateHousehold(mockReq, mockRes);
+
+      expect(mockPrisma.household.update).toHaveBeenCalled();
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: expect.objectContaining({
+          phone: validUpdate.phone
+        })
+      });
+    });
+
+    it('should handle non-existent household', async () => {
+      mockReq.params = { householdId: '999' };
+      mockReq.body = validUpdate;
+
+      mockPrisma.household.findUnique.mockResolvedValue(null);
+
+      await householdController.updateHousehold(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'Household not found'
+      });
+    });
+
+    it('should validate phone number format', async () => {
+      mockReq.params = { householdId: '1' };
+      mockReq.body = {
+        ...validUpdate,
+        phone: '0712345678' // Invalid format
+      };
+
+      await householdController.updateHousehold(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: expect.stringContaining('phone number format')
+      });
+    });
+
+    it('should prevent duplicate ID numbers', async () => {
+      mockReq.params = { householdId: '1' };
+      mockReq.body = {
+        ...validUpdate,
+        head_id_number: '87654321' // Different from existing
+      };
+
+      mockPrisma.household.findUnique
+        .mockResolvedValueOnce({ id: 1, headIdNumber: '12345678' }) // First call returns existing household
+        .mockResolvedValueOnce({ id: 2 }); // Second call finds duplicate ID
+
+      await householdController.updateHousehold(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: expect.stringContaining('ID number is already registered')
       });
     });
   });

@@ -99,6 +99,33 @@
               "path": ["api", "v1", "programs"]
             }
           }
+        },
+        {
+          "name": "Update Program",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Program Name\",\n    \"description\": \"Updated program description\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/programs/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["programs", "1"]
+            }
+          }
         }
       ]
     },
@@ -147,6 +174,33 @@
               "raw": "{{baseUrl}}/api/v1/households",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "households"]
+            }
+          }
+        },
+        {
+          "name": "Update Household",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"program_id\": 1,\n    \"sublocation_id\": 1,\n    \"head_first_name\": \"John\",\n    \"head_last_name\": \"Doe\",\n    \"head_id_number\": \"12345678\",\n    \"phone\": \"254712345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/households/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["households", "1"]
             }
           }
         }

@@ -6,5 +6,6 @@ const { validateHousehold } = require('../middleware/validation');
 
 router.get('/', verifyToken, householdController.getAllHouseholds);
 router.post('/', [verifyToken, validateHousehold], householdController.createHousehold);
+router.put('/:householdId', [verifyToken, validateHousehold], householdController.updateHousehold);
 
 module.exports = router; 

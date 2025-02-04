@@ -186,6 +186,79 @@ paths:
         201:
           description: Program created successfully
 
+  /api/v1/programs/{programId}:
+    put:
+      tags:
+        - Programs
+      summary: Update a program
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: programId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the program to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Program name
+                  example: "Updated Program Name"
+                description:
+                  type: string
+                  description: Program description
+                  example: "Updated program description"
+              required:
+                - name
+      responses:
+        '200':
+          description: Program updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Program'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid program data
+        '404':
+          description: Program not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Program not found
+        '500':
+          $ref: '#/components/responses/ServerError'
+
   /api/v1/households:
     get:
       tags:
@@ -209,6 +282,72 @@ paths:
       responses:
         201:
           description: Household created successfully
+
+  /api/v1/households/{householdId}:
+    put:
+      tags:
+        - Households
+      summary: Update a household
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: householdId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the household to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                program_id:
+                  type: integer
+                  description: Program ID
+                sublocation_id:
+                  type: integer
+                  description: Sublocation ID
+                head_first_name:
+                  type: string
+                  description: Household head first name
+                head_last_name:
+                  type: string
+                  description: Household head last name
+                head_id_number:
+                  type: string
+                  description: Household head ID number
+                phone:
+                  type: string
+                  description: Phone number in format 254XXXXXXXXX
+              required:
+                - program_id
+                - sublocation_id
+                - head_first_name
+                - head_last_name
+                - head_id_number
+                - phone
+      responses:
+        '200':
+          description: Household updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Household'
+        '400':
+          description: Invalid input
+        '404':
+          description: Household not found
+        '500':
+          $ref: '#/components/responses/ServerError'
 
   /api/v1/households/{householdId}/members:
     get:

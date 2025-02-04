@@ -113,6 +113,78 @@ const programController = {
         message: 'Failed to fetch program members'
       });
     }
+  },
+  // Update program
+  updateProgram: async (req, res) => {
+    try {
+      const { programId } = req.params;
+      const { name, description } = req.body;
+
+      // Validate program ID
+      const id = parseInt(programId);
+      if (isNaN(id)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid program ID'
+        });
+      }
+
+      // Validate required fields
+      if (!name?.trim()) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Program name is required'
+        });
+      }
+
+      // Validate name length
+      if (name.length > 100) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Program name must be less than 100 characters'
+        });
+      }
+
+      // Validate description if provided
+      if (description && description.length > 500) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Description must be less than 500 characters'
+        });
+      }
+
+      // Check if program exists
+      const existingProgram = await prisma.program.findUnique({
+        where: { id }
+      });
+
+      if (!existingProgram) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Program not found'
+        });
+      }
+
+      // Update program
+      const updatedProgram = await prisma.program.update({
+        where: { id },
+        data: {
+          name: name.trim(),
+          description: description?.trim() || null
+        }
+      });
+
+      res.json({
+        status: 'success',
+        data: updatedProgram
+      });
+    } catch (error) {
+      console.error('Error updating program:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to update program'
+      });
+    }
   }
 };
 
