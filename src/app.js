@@ -8,11 +8,17 @@ const householdRoutes = require('./routes/householdRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const authRoutes = require('./routes/authRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const { cors: corsConfig } = require('./config/cors');
 
 const app = express();
 
+// Apply CORS with environment-specific config
+app.use(cors(corsConfig));
+
+// Handle CORS preflight requests
+app.options('*', cors(corsConfig));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Rate limiting
@@ -27,6 +33,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/programs', programRoutes);
 app.use('/api/v1/households', householdRoutes);
 app.use('/api/v1/households/:householdId/members', memberRoutes);
+app.use('/api/v1/members', memberRoutes);
 app.use('/api/v1/locations', locationRoutes);
 
 // Swagger documentation
@@ -35,10 +42,26 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      status: 'error',
+      message: 'CORS: Origin not allowed',
+      origin: req.headers.origin
+    });
+  }
+
+  console.error('Error:', err.stack);
   res.status(500).json({
     status: 'error',
     message: 'Something went wrong!'
+  });
+});
+
+// Handle 404 errors
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: 'Route not found'
   });
 });
 

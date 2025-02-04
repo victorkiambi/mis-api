@@ -96,7 +96,35 @@ const memberController = {
         message: 'Failed to add household member'
       });
     }
+  },
+
+  getAllMembers: async (req, res) => {
+    try {
+      const members = await prisma.householdMember.findMany({
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          dateOfBirth: true,
+          relationship: true,
+          householdId: true
+        }
+      });
+
+      res.json({
+        status: 'success',
+        data: members
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to fetch members'
+      });
+    }
   }
+
 };
+
+
 
 module.exports = memberController; 

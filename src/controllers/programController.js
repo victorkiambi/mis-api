@@ -76,6 +76,44 @@ const programController = {
         message: 'Failed to create program'
       });
     }
+  },
+  getProgramMembers: async (req, res) => {
+    try {
+      const { programId } = req.params;
+
+      // Validate program ID
+      const id = parseInt(programId);
+      if (isNaN(id)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid program ID'
+        });
+      }
+
+      const members = await prisma.members.findMany({
+        where: {
+          id: id
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          dateOfBirth: true,
+          relationship: true
+        }
+      });
+
+      res.json({
+        status: 'success',
+        data: members
+      });
+    } catch (error) {
+      console.error('Error fetching program members:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to fetch program members'
+      });
+    }
   }
 };
 
