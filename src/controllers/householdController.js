@@ -18,12 +18,19 @@ const householdController = {
             }
           },
           sublocation: {
-            include: {
+            select: {
+              name: true,
               location: {
-                include: {
+                select: {
+                  name: true,
                   subcounty: {
-                    include: {
-                      county: true
+                    select: {
+                      name: true,
+                      county: {
+                        select: {
+                          name: true
+                        }
+                      }
                     }
                   }
                 }
@@ -38,6 +45,7 @@ const householdController = {
         id: household.id,
         head_first_name: household.headFirstName,
         head_last_name: household.headLastName,
+        head_id_number: household.headIdNumber,
         phone: decrypt(household.encryptedPhone),
         program: household.program,
         location: {

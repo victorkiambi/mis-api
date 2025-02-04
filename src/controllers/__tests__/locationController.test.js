@@ -46,7 +46,21 @@ describe('Location Controller', () => {
             {
               id: 1,
               name: 'Westlands',
-              code: 'WST'
+              code: 'WST',
+              locations: [
+                {
+                  id: 1,
+                  name: 'Parklands',
+                  code: 'PKL',
+                  sublocations: [
+                    {
+                      id: 1,
+                      name: 'Parklands North',
+                      code: 'PKL-N'
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -58,7 +72,15 @@ describe('Location Controller', () => {
 
       expect(mockPrisma.geoCounty.findMany).toHaveBeenCalledWith({
         include: {
-          subcounties: true
+          subcounties: {
+            include: {
+              locations: {
+                include: {
+                  sublocations: true
+                }
+              }
+            }
+          }
         }
       });
 
@@ -76,10 +98,102 @@ describe('Location Controller', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'error',
-        message: 'Failed to fetch counties'
+        message: expect.stringContaining('Failed to fetch counties')
       });
     });
   });
 
-  // Add similar test blocks for other methods...
+  describe('getSubcounties', () => {
+    it('should return subcounties for a valid county ID', async () => {
+      mockReq.params.countyId = '1';
+      const mockSubcounties = [
+        {
+          id: 1,
+          name: 'Westlands',
+          code: 'WST',
+          locations: []
+        }
+      ];
+
+      mockPrisma.geoSubcounty.findMany.mockResolvedValue(mockSubcounties);
+
+      await locationController.getSubcounties(mockReq, mockRes);
+
+      expect(mockPrisma.geoSubcounty.findMany).toHaveBeenCalledWith({
+        where: { countyId: 1 },
+        include: { locations: true }
+      });
+
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: mockSubcounties
+      });
+    });
+
+    it('should handle invalid county ID', async () => {
+      mockReq.params.countyId = 'invalid';
+
+      await locationController.getSubcounties(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'error',
+        message: 'Invalid county ID'
+      });
+    });
+  });
+
+  describe('getLocations', () => {
+    it('should return locations for a valid subcounty ID', async () => {
+      mockReq.params.subcountyId = '1';
+      const mockLocations = [
+        {
+          id: 1,
+          name: 'Parklands',
+          code: 'PKL',
+          sublocations: []
+        }
+      ];
+
+      mockPrisma.geoLocation.findMany.mockResolvedValue(mockLocations);
+
+      await locationController.getLocations(mockReq, mockRes);
+
+      expect(mockPrisma.geoLocation.findMany).toHaveBeenCalledWith({
+        where: { subcountyId: 1 },
+        include: { sublocations: true }
+      });
+
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: mockLocations
+      });
+    });
+  });
+
+  describe('getSublocations', () => {
+    it('should return sublocations for a valid location ID', async () => {
+      mockReq.params.locationId = '1';
+      const mockSublocations = [
+        {
+          id: 1,
+          name: 'Parklands North',
+          code: 'PKL-N'
+        }
+      ];
+
+      mockPrisma.geoSublocation.findMany.mockResolvedValue(mockSublocations);
+
+      await locationController.getSublocations(mockReq, mockRes);
+
+      expect(mockPrisma.geoSublocation.findMany).toHaveBeenCalledWith({
+        where: { locationId: 1 }
+      });
+
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'success',
+        data: mockSublocations
+      });
+    });
+  });
 }); 
