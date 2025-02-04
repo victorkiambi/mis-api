@@ -107,9 +107,22 @@ const memberController = {
           lastName: true,
           dateOfBirth: true,
           relationship: true,
-          householdId: true
+          householdId: true,
+          household: {
+            select: {
+              headFirstName: true,
+              headLastName: true,
+              headIdNumber: true,
+              programId: true,
+              program: {
+                select: {
+                  name: true
+                }
+              }
+            }
         }
-      });
+      }
+        });
 
       res.json({
         status: 'success',
